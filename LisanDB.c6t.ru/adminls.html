@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель LisanDub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #0a0a1a;
+            color: #f0f0f0;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a2e;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e94560;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #e94560;
+            margin-bottom: 10px;
+        }
+        
+        .logo span {
+            color: #fff;
+        }
+        
+        .subtitle {
+            color: #a0a0a0;
+            font-size: 1.2rem;
+        }
+        
+        .auth-section, .anime-form, .episode-form {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+        
+        h2 {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e94560;
+            color: #fff;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #a0a0a0;
+            font-weight: 500;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #0f3460;
+            border-radius: 4px;
+            background: #0f3460;
+            color: #fff;
+            font-size: 16px;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #e94560;
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        button {
+            background: #e94560;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background: #c53d54;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .btn-secondary {
+            background: #16213e;
+        }
+        
+        .btn-secondary:hover {
+            background: #1a1a2e;
+        }
+        
+        .episodes-list {
+            margin-top: 20px;
+        }
+        
+        .episode-item {
+            background: #0f3460;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .episode-info {
+            flex: 1;
+        }
+        
+        .episode-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .success {
+            background: #1e3a2b;
+            color: #4ade80;
+            display: block;
+        }
+        
+        .error {
+            background: #3a1e1e;
+            color: #f87171;
+            display: block;
+        }
+        
+        .anime-list {
+            margin-top: 30px;
+        }
+        
+        .anime-item {
+            background: #0f3460;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .anime-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .anime-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .anime-category {
+            background: #1a1a2e;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .anime-description {
+            color: #a0a0a0;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .anime-episodes {
+            font-size: 1rem;
+            color: #e94560;
+            margin-bottom: 15px;
+        }
+        
+        .episode-count {
+            display: inline-block;
+            background: #e94560;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+        
+        .login-info {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: #16213e;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #a0a0a0;
+        }
+        
+        .selected-anime-indicator {
+            background: #e94560;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .save-status {
+            text-align: right;
+            font-size: 0.9rem;
+            color: #a0a0a0;
+            margin-top: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .anime-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="logo">Lisan<span>Dub</span> Админ-панель</h1>
+            <p class="subtitle">Управление аниме и сериями</p>
+            <div class="save-status" id="save-status">Все изменения сохраняются автоматически</div>
+        </header>
+        
+        <div id="message" class="message"></div>
+        
+        <section class="auth-section">
+            <h2>Аутентификация GitHub</h2>
+            <div class="form-group">
+                <label for="repo-name">Название репозитория (в формате username/repo)</label>
+                <input type="text" id="repo-name" placeholder="username/repo">
+            </div>
+            <div class="form-group">
+                <label for="access-token">GitHub Personal Access Token</label>
+                <input type="password" id="access-token" placeholder="ghp_xxxxxxxxxxxxxxxx">
+                <small style="color: #a0a0a0; display: block; margin-top: 5px;">Токен должен иметь права repo</small>
+            </div>
+            <div class="form-group">
+                <label for="file-path">Путь к файлу данных</label>
+                <input type="text" id="file-path" value="anime-data.json">
+            </div>
+            <div class="form-group">
+                <label for="branch-name">Ветка репозитория</label>
+                <input type="text" id="branch-name" value="main">
+            </div>
+            <button id="load-data">Загрузить данные</button>
+            
+            <div class="login-info">
+                <p>Для работы админ-панели необходим Personal Access Token с правами доступа к репозиторию.</p>
+                <p>Токен можно создать в настройках GitHub: Settings → Developer settings → Personal access tokens</p>
+            </div>
+        </section>
+        
+        <section class="anime-form">
+            <h2>Управление аниме</h2>
+            <div class="form-group">
+                <label for="anime-title">Название аниме *</label>
+                <input type="text" id="anime-title" placeholder="Ван Пис">
+            </div>
+            <div class="form-group">
+                <label for="anime-image">Ссылка на изображение *</label>
+                <input type="text" id="anime-image" placeholder="https://example.com/image.jpg">
+            </div>
+            <div class="form-group">
+                <label for="anime-episodes">Количество серий *</label>
+                <input type="number" id="anime-episodes" placeholder="100" min="1">
+            </div>
+            <div class="form-group">
+                <label for="anime-category">Категория *</label>
+                <select id="anime-category">
+                    <option value="new">Новые</option>
+                    <option value="popular">Популярные</option>
+                    <option value="completed">Завершённые</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="anime-description">Описание *</label>
+                <textarea id="anime-description" placeholder="Описание аниме..."></textarea>
+            </div>
+            <div class="btn-group">
+                <button id="add-anime">Добавить аниме</button>
+                <button id="update-anime" class="btn-secondary" style="display:none;">Обновить аниме</button>
+                <button id="cancel-edit" class="btn-secondary" style="display:none;">Отменить</button>
+                <button id="clear-anime-form" class="btn-secondary">Очистить форму</button>
+            </div>
+        </section>
+        
+        <section class="episode-form">
+            <h2>Управление сериями</h2>
+            <div class="form-group">
+                <label for="episode-anime">Выберите аниме *</label>
+                <select id="episode-anime">
+                    <option value="">-- Выберите аниме --</option>
+                </select>
+                <div id="selected-anime-info" class="selected-anime-indicator">
+                    <i class="fas fa-check-circle"></i> Аниме выбрано: <span id="selected-anime-name"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="episode-url">Ссылка на плеер Kodik *</label>
+                <input type="text" id="episode-url" placeholder="https://kodik.info/seria/123456/1234567890/720p">
+            </div>
+            <div class="form-group">
+                <label for="episode-title">Название серии (необязательно)</label>
+                <input type="text" id="episode-title" placeholder="Начало приключения">
+            </div>
+            <div class="form-group">
+                <label for="episode-duration">Длительность (необязательно)</label>
+                <input type="text" id="episode-duration" placeholder="24 мин">
+            </div>
+            <div class="btn-group">
+                <button id="add-episode">Добавить серию</button>
+                <button id="add-multiple-episodes" class="btn-secondary">Добавить и продолжить</button>
+                <button id="clear-episode-form" class="btn-secondary">Очистить форму</button>
+            </div>
+        </section>
+        
+        <section class="anime-list">
+            <h2>Список аниме</h2>
+            <div id="anime-container">
+                <p style="text-align: center; color: #a0a0a0; padding: 20px;">
+                    Загрузите данные для просмотра списка аниме
+                </p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Переменные для хранения данных
+        let animeData = [];
+        let currentAnimeId = null;
+        let repoName = '';
+        let accessToken = '';
+        let filePath = 'anime-data.json';
+        let branchName = 'main';
+        let fileSha = '';
+        let selectedAnimeId = null;
+
+        // Элементы DOM
+        const messageEl = document.getElementById('message');
+        const repoNameEl = document.getElementById('repo-name');
+        const accessTokenEl = document.getElementById('access-token');
+        const filePathEl = document.getElementById('file-path');
+        const branchNameEl = document.getElementById('branch-name');
+        const loadDataBtn = document.getElementById('load-data');
+        const animeTitleEl = document.getElementById('anime-title');
+        const animeImageEl = document.getElementById('anime-image');
+        const animeEpisodesEl = document.getElementById('anime-episodes');
+        const animeCategoryEl = document.getElementById('anime-category');
+        const animeDescriptionEl = document.getElementById('anime-description');
+        const addAnimeBtn = document.getElementById('add-anime');
+        const updateAnimeBtn = document.getElementById('update-anime');
+        const cancelEditBtn = document.getElementById('cancel-edit');
+        const clearAnimeFormBtn = document.getElementById('clear-anime-form');
+        const episodeAnimeEl = document.getElementById('episode-anime');
+        const episodeUrlEl = document.getElementById('episode-url');
+        const episodeTitleEl = document.getElementById('episode-title');
+        const episodeDurationEl = document.getElementById('episode-duration');
+        const addEpisodeBtn = document.getElementById('add-episode');
+        const addMultipleEpisodesBtn = document.getElementById('add-multiple-episodes');
+        const clearEpisodeFormBtn = document.getElementById('clear-episode-form');
+        const animeContainerEl = document.getElementById('anime-container');
+        const selectedAnimeInfoEl = document.getElementById('selected-anime-info');
+        const selectedAnimeNameEl = document.getElementById('selected-anime-name');
+        const saveStatusEl = document.getElementById('save-status');
+
+        // Функция для отображения сообщений
+        function showMessage(text, isError = false) {
+            messageEl.textContent = text;
+            messageEl.className = isError ? 'message error' : 'message success';
+            setTimeout(() => {
+                messageEl.className = 'message';
+                messageEl.textContent = '';
+            }, 5000);
+        }
+
+        // Функция для показа статуса сохранения
+        function showSaveStatus(text) {
+            saveStatusEl.textContent = text;
+            setTimeout(() => {
+                saveStatusEl.textContent = 'Все изменения сохраняются автоматически';
+            }, 3000);
+        }
+
+        // Функция для сохранения состояния формы в localStorage
+        function saveFormState() {
+            const formState = {
+                repoName: repoNameEl.value,
+                filePath: filePathEl.value,
+                branchName: branchNameEl.value,
+                animeTitle: animeTitleEl.value,
+                animeImage: animeImageEl.value,
+                animeEpisodes: animeEpisodesEl.value,
+                animeCategory: animeCategoryEl.value,
+                animeDescription: animeDescriptionEl.value,
+                episodeUrl: episodeUrlEl.value,
+                episodeTitle: episodeTitleEl.value,
+                episodeDuration: episodeDurationEl.value,
+                selectedAnimeId: selectedAnimeId,
+                currentAnimeId: currentAnimeId
+            };
+            
+            localStorage.setItem('adminFormState', JSON.stringify(formState));
+            showSaveStatus('Состояние формы сохранено');
+        }
+
+        // Функция для загрузки состояния формы из localStorage
+        function loadFormState() {
+            const savedState = localStorage.getItem('adminFormState');
+            if (savedState) {
+                const formState = JSON.parse(savedState);
+                
+                // Заполняем поля формы
+                repoNameEl.value = formState.repoName || '';
+                filePathEl.value = formState.filePath || 'anime-data.json';
+                branchNameEl.value = formState.branchName || 'main';
+                animeTitleEl.value = formState.animeTitle || '';
+                animeImageEl.value = formState.animeImage || '';
+                animeEpisodesEl.value = formState.animeEpisodes || '';
+                animeCategoryEl.value = formState.animeCategory || 'new';
+                animeDescriptionEl.value = formState.animeDescription || '';
+                episodeUrlEl.value = formState.episodeUrl || '';
+                episodeTitleEl.value = formState.episodeTitle || '';
+                episodeDurationEl.value = formState.episodeDuration || '';
+                
+                // Восстанавливаем выбранное аниме
+                selectedAnimeId = formState.selectedAnimeId || null;
+                currentAnimeId = formState.currentAnimeId || null;
+                
+                // Обновляем видимость кнопок
+                if (currentAnimeId) {
+                    addAnimeBtn.style.display = 'none';
+                    updateAnimeBtn.style.display = 'block';
+                    cancelEditBtn.style.display = 'block';
+                }
+                
+                // Показываем информацию о выбранном аниме
+                updateSelectedAnimeInfo();
+            }
+        }
+
+        // Функция для очистки состояния формы
+        function clearFormState() {
+            localStorage.removeItem('adminFormState');
+            showSaveStatus('Состояние формы очищено');
+        }
+
+        // Функция для загрузки данных из репозитория
+        async function loadDataFromRepo() {
+            repoName = repoNameEl.value.trim();
+            accessToken = accessTokenEl.value.trim();
+            filePath = filePathEl.value.trim();
+            branchName = branchNameEl.value.trim();
+            
+            if (!repoName || !accessToken || !filePath || !branchName) {
+                showMessage('Заполните все поля аутентификации', true);
+                return;
+            }
+            
+            // Сохраняем токен безопасно (только на время сессии)
+            sessionStorage.setItem('github_token', accessToken);
+            
+            try {
+                const response = await fetch(`https://api.github.com/repos/${repoName}/contents/${filePath}?ref=${branchName}`, {
+                    headers: {
+                        'Authorization': `token ${accessToken}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        // Файл не существует, создадим пустой массив
+                        animeData = [];
+                        fileSha = '';
+                        showMessage('Файл не найден. Будет создан новый файл.');
+                        renderAnimeList();
+                        updateAnimeDropdown();
+                        saveFormState();
+                        return;
+                    }
+                    throw new Error(`Ошибка HTTP: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                const content = atob(data.content.replace(/\s/g, ''));
+                animeData = JSON.parse(content);
+                fileSha = data.sha;
+                
+                showMessage('Данные успешно загружены');
+                renderAnimeList();
+                updateAnimeDropdown();
+                saveFormState();
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
+                showMessage('Ошибка загрузки данных: ' + error.message, true);
+            }
+        }
+
+        // Функция для сохранения данных в репозиторий
+        async function saveDataToRepo() {
+       try {
+                const content = btoa(unescape(encodeURIComponent(JSON.stringify(animeData, null, 2))));
+                const message = fileSha ? 'Обновление данных аниме' : 'Добавление данных аниме';
+                
+                const response = await fetch(`https://api.github.com/repos/${repoName}/contents/${filePath}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${accessToken}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message,
+                        content,
+                        sha: fileSha,
+                        branch: branchName
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Ошибка HTTP: ${response.status} - ${errorData.message}`);
+                }
+                
+                const data = await response.json();
+                fileSha = data.content.sha;
+                
+                showMessage('Данные успешно сохранены');
+                renderAnimeList();
+                updateAnimeDropdown();
+                saveFormState();
+                return true;
+            } catch (error) {
+                console.error('Ошибка сохранения данных:', error);
+                showMessage('Ошибка сохранения данных: ' + error.message, true);
+                return false;
+            }
+        }
+
+        // Функция для отображения списка аниме
+        function renderAnimeList() {
+            animeContainerEl.innerHTML = '';
+            
+            if (animeData.length === 0) {
+                animeContainerEl.innerHTML = '<p style="text-align: center; color: #a0a0a0; padding: 20px;">Аниме не найдено. Добавьте новое аниме.</p>';
+                return;
+            }
+            
+            animeData.forEach(anime => {
+                const animeItem = document.createElement('div');
+                animeItem.className = 'anime-item';
+                
+                animeItem.innerHTML = `
+                    <div class="anime-header">
+                        <div class="anime-title">${anime.title}</div>
+                        <div class="anime-category">${getCategoryName(anime.category)}</div>
+                    </div>
+                    <div class="anime-description">${anime.description}</div>
+                    <div class="anime-episodes">
+                        Всего серий: ${anime.episodes} | 
+                        Добавлено серий: <span class="episode-count">${anime.kodikLinks ? anime.kodikLinks.length : 0}</span>
+                    </div>
+                    <div class="btn-group">
+                        <button class="edit-anime" data-id="${anime.id}">Редактировать</button>
+                        <button class="delete-anime" data-id="${anime.id}">Удалить</button>
+                    </div>
+                `;
+                
+                animeContainerEl.appendChild(animeItem);
+            });
+            
+            // Добавляем обработчики для кнопок редактирования и удаления
+            document.querySelectorAll('.edit-anime').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = parseInt(e.target.getAttribute('data-id'));
+                    editAnime(id);
+                });
+            });
+            
+            document.querySelectorAll('.delete-anime').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = parseInt(e.target.getAttribute('data-id'));
+                    deleteAnime(id);
+                });
+            });
+        }
+
+        // Функция для получения названия категории
+        function getCategoryName(category) {
+            switch(category) {
+                case 'new': return 'Новые';
+                case 'popular': return 'Популярные';
+                case 'completed': return 'Завершённые';
+                default: return category;
+            }
+        }
+
+        // Функция для обновления выпадающего списка аниме
+        function updateAnimeDropdown() {
+            // Сохраняем текущее выбранное значение
+            const currentSelection = selectedAnimeId;
+            
+            episodeAnimeEl.innerHTML = '<option value="">-- Выберите аниме --</option>';
+            
+            if (animeData.length === 0) {
+                return;
+            }
+            
+            animeData.forEach(anime => {
+                const option = document.createElement('option');
+                option.value = anime.id;
+                option.textContent = anime.title;
+                episodeAnimeEl.appendChild(option);
+            });
+            
+            // Восстанавливаем выбранное значение, если оно все еще существует
+            if (currentSelection) {
+                const animeExists = animeData.some(a => a.id === currentSelection);
+                if (animeExists) {
+                    episodeAnimeEl.value = currentSelection;
+                    updateSelectedAnimeInfo();
+                } else {
+                    selectedAnimeId = null;
+                    selectedAnimeInfoEl.style.display = 'none';
+                }
+            }
+            
+            saveFormState();
+        }
+
+        // Функция для обновления информации о выбранном аниме
+        function updateSelectedAnimeInfo() {
+            if (!selectedAnimeId) {
+                selectedAnimeInfoEl.style.display = 'none';
+                return;
+            }
+            
+            const selectedAnime = animeData.find(a => a.id === selectedAnimeId);
+            if (selectedAnime) {
+                selectedAnimeNameEl.textContent = selectedAnime.title;
+                selectedAnimeInfoEl.style.display = 'block';
+            } else {
+                selectedAnimeInfoEl.style.display = 'none';
+            }
+            
+            saveFormState();
+        }
+
+        // Функция для добавления нового аниме
+        async function addNewAnime() {
+            const title = animeTitleEl.value.trim();
+            const image = animeImageEl.value.trim();
+            const episodes = parseInt(animeEpisodesEl.value);
+            const category = animeCategoryEl.value;
+            const description = animeDescriptionEl.value.trim();
+            
+            if (!title || !image || isNaN(episodes) || !description) {
+                showMessage('Заполните все обязательные поля', true);
+                return;
+            }
+            
+            // Генерируем ID для нового аниме
+            const id = animeData.length > 0 ? Math.max(...animeData.map(a => a.id)) + 1 : 1;
+            
+            // Добавляем новое аниме в массив
+            animeData.push({
+                id,
+                title,
+                image,
+                episodes,
+                category,
+                description,
+                kodikLinks: []
+            });
+            
+            // Сохраняем данные
+            const success = await saveDataToRepo();
+            
+            if (success) {
+                // Автоматически выбираем новое аниме в форме серий
+                selectedAnimeId = id;
+                updateAnimeDropdown();
+                
+                // Очищаем форму
+                clearAnimeForm();
+            }
+        }
+
+        // Функция для редактирования аниме
+        function editAnime(id) {
+            const anime = animeData.find(a => a.id === id);
+            if (!anime) return;
+            
+            // Заполняем форму данными аниме
+            animeTitleEl.value = anime.title;
+            animeImageEl.value = anime.image;
+            animeEpisodesEl.value = anime.episodes;
+            animeCategoryEl.value = anime.category;
+            animeDescriptionEl.value = anime.description;
+            
+            // Сохраняем ID текущего аниме
+            currentAnimeId = id;
+            
+            // Меняем кнопки
+            addAnimeBtn.style.display = 'none';
+            updateAnimeBtn.style.display = 'block';
+            cancelEditBtn.style.display = 'block';
+            
+            // Прокручиваем к форме
+            document.querySelector('.anime-form').scrollIntoView({ behavior: 'smooth' });
+            
+            saveFormState();
+        }
+
+        // Функция для обновления аниме
+        async function updateAnime() {
+            if (currentAnimeId === null) return;
+            
+            const title = animeTitleEl.value.trim();
+            const image = animeImageEl.value.trim();
+            const episodes = parseInt(animeEpisodesEl.value);
+            const category = animeCategoryEl.value;
+            const description = animeDescriptionEl.value.trim();
+            
+            if (!title || !image || isNaN(episodes) || !description) {
+                showMessage('Заполните все обязательные поля', true);
+                return;
+            }
+            
+            // Находим и обновляем аниме
+            const animeIndex = animeData.findIndex(a => a.id === currentAnimeId);
+            if (animeIndex === -1) return;
+            
+            // Сохраняем kodikLinks перед обновлением
+            const kodikLinks = animeData[animeIndex].kodikLinks || [];
+            
+            animeData[animeIndex] = {
+                ...animeData[animeIndex],
+                title,
+                image,
+                episodes,
+                category,
+                description,
+                kodikLinks
+            };
+            
+            // Сохраняем данные
+            const success = await saveDataToRepo();
+            
+            if (success) {
+                // Очищаем форму и сбрасываем состояние
+                clearAnimeForm();
+            }
+        }
+
+        // Функция для удаления аниме
+        async function deleteAnime(id) {
+            if (!confirm('Вы уверены, что хотите удалить это аниме? Это действие нельзя отменить.')) return;
+            
+            // Если удаляем выбранное аниме, сбрасываем выбор
+            if (selectedAnimeId === id) {
+                selectedAnimeId = null;
+                selectedAnimeInfoEl.style.display = 'none';
+            }
+            
+            // Удаляем аниме из массива
+            animeData = animeData.filter(a => a.id !== id);
+            
+            // Сохраняем данные
+            await saveDataToRepo();
+        }
+
+        // Функция для очистки формы аниме
+        function clearAnimeForm() {
+            animeTitleEl.value = '';
+            animeImageEl.value = '';
+            animeEpisodesEl.value = '';
+            animeCategoryEl.value = 'new';
+            animeDescriptionEl.value = '';
+            
+            currentAnimeId = null;
+            
+            addAnimeBtn.style.display = 'block';
+            updateAnimeBtn.style.display = 'none';
+            cancelEditBtn.style.display = 'none';
+            
+            saveFormState();
+        }
+
+        // Функция для очистки формы серий
+        function clearEpisodeForm() {
+            episodeUrlEl.value = '';
+            episodeTitleEl.value = '';
+            episodeDurationEl.value = '';
+            
+            saveFormState();
+        }
+
+        // Функция для добавления серии
+        async function addEpisode(clearForm = true) {
+            const animeId = parseInt(episodeAnimeEl.value);
+            const url = episodeUrlEl.value.trim();
+            const title = episodeTitleEl.value.trim();
+            const duration = episodeDurationEl.value.trim();
+            
+            if (isNaN(animeId) || !url) {
+                showMessage('Выберите аниме и укажите ссылку', true);
+                return;
+            }
+            
+            // Находим аниме
+            const animeIndex = animeData.findIndex(a => a.id === animeId);
+            if (animeIndex === -1) {
+                showMessage('Аниме не найдено', true);
+                return;
+            }
+            
+            // Убедимся, что kodikLinks существует
+            if (!animeData[animeIndex].kodikLinks) {
+                animeData[animeIndex].kodikLinks = [];
+            }
+            
+            // Добавляем серию
+            animeData[animeIndex].kodikLinks.push({
+                playerUrl: url,
+                title: title || `Серия ${animeData[animeIndex].kodikLinks.length + 1}`,
+                duration: duration || 'неизвестно'
+            });
+            
+            // Сохраняем данные
+            const success = await saveDataToRepo();
+            
+            if (success && clearForm) {
+                // Очищаем форму
+                clearEpisodeForm();
+            }
+            
+            return success;
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            // Загружаем сохраненное состояние формы
+            loadFormState();
+            
+            // Пытаемся загрузить токен из sessionStorage
+            const savedToken = sessionStorage.getItem('github_token');
+            if (savedToken) {
+                accessTokenEl.value = savedToken;
+                accessToken = savedToken;
+            }
+            
+            // Обработчики событий
+            loadDataBtn.addEventListener('click', loadDataFromRepo);
+            addAnimeBtn.addEventListener('click', addNewAnime);
+            updateAnimeBtn.addEventListener('click', updateAnime);
+            cancelEditBtn.addEventListener('click', clearAnimeForm);
+            clearAnimeFormBtn.addEventListener('click', clearAnimeForm);
+            addEpisodeBtn.addEventListener('click', () => addEpisode(true));
+            addMultipleEpisodesBtn.addEventListener('click', async () => {
+                const success = await addEpisode(false);
+                if (success) {
+                    // Очищаем только поля серии, оставляя выбранное аниме
+                    clearEpisodeForm();
+                    showMessage('Серия добавлена. Можете добавить следующую.', false);
+                }
+            });
+            clearEpisodeFormBtn.addEventListener('click', clearEpisodeForm);
+            
+            // Обработчик изменения выбранного аниме
+            episodeAnimeEl.addEventListener('change', () => {
+                selectedAnimeId = parseInt(episodeAnimeEl.value) || null;
+                updateSelectedAnimeInfo();
+            });
+            
+            // Сохранение состояния при изменении полей формы
+            const formFields = [
+                repoNameEl, accessTokenEl, filePathEl, branchNameEl,
+                animeTitleEl, animeImageEl, animeEpisodesEl, animeCategoryEl, animeDescriptionEl,
+                episodeUrlEl, episodeTitleEl, episodeDurationEl
+            ];
+            
+            formFields.forEach(field => {
+                field.addEventListener('input', saveFormState);
+                field.addEventListener('change', saveFormState);
+            });
+            
+            // Сохранение состояния при изменении выбора аниме
+            episodeAnimeEl.addEventListener('change', saveFormState);
+        });
+    </script>
+</body>
+</html>
