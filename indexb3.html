@@ -1,0 +1,2602 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DreamyVoice - Аниме на русском</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 100%);
+            color: #f0f0f0;
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(100, 100, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(90, 90, 150, 0.1) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        header {
+            background: linear-gradient(90deg, #1a1a2e 0%, #16213e 100%);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #a5b4fc;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            text-shadow: 0 0 10px rgba(165, 180, 252, 0.5);
+            z-index: 101;
+            cursor: default;
+        }
+        
+        .logo span {
+            color: #e0e7ff;
+        }
+        
+        .logo i {
+            margin-right: 10px;
+            color: #e0e7ff;
+        }
+        
+        .search-container {
+            display: flex;
+            align-items: center;
+            background: rgba(22, 33, 62, 0.8);
+            border-radius: 25px;
+            padding: 0.5rem 1rem;
+            margin: 0 1rem;
+            flex-grow: 1;
+            max-width: 400px;
+            border: 1px solid rgba(165, 180, 252, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .search-container:focus-within {
+            box-shadow: 0 0 10px rgba(165, 180, 252, 0.5);
+            border-color: #a5b4fc;
+        }
+        
+        .search-container i {
+            color: #a5b4fc;
+            margin-right: 10px;
+        }
+        
+        #search-input {
+            background: transparent;
+            border: none;
+            color: #f0f0f0;
+            width: 100%;
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        #search-input::placeholder {
+            color: #a0a0a0;
+        }
+        
+        /* Гамбургер меню */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            z-index: 101;
+        }
+        
+        .hamburger span {
+            display: block;
+            height: 3px;
+            width: 100%;
+            background-color: #e0e7ff;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+        
+        .hamburger.active span:nth-child(1) {
+            transform: translateY(9px) rotate(45deg);
+        }
+        
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger.active span:nth-child(3) {
+            transform: translateY(-9px) rotate(-45deg);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+        
+        nav ul li a {
+            color: #e0e7ff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            padding: 0.5rem;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        nav ul li a::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #a5b4fc;
+            transition: width 0.3s;
+        }
+        
+        nav ul li a:hover {
+            color: #a5b4fc;
+        }
+        
+        nav ul li a:hover::before {
+            width: 100%;
+        }
+        
+        .nav-link.active {
+            color: #a5b4fc;
+        }
+        
+        .nav-link.active::before {
+            width: 100%;
+        }
+        
+        .admin-link {
+            color: #ff6b6b !important;
+            font-weight: bold !important;
+        }
+        
+        .admin-link:hover {
+            color: #ff5252 !important;
+        }
+        
+        .admin-link::before {
+            background: #ff6b6b !important;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .loader {
+            text-align: center;
+            padding: 2rem;
+            font-size: 1.5rem;
+            color: #a5b4fc;
+        }
+        
+        .loader i {
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #a5b4fc;
+            display: inline-block;
+            color: #e0e7ff;
+            text-shadow: 0 0 5px rgba(165, 180, 252, 0.5);
+        }
+        
+        .anime-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .anime-card {
+            background: rgba(26, 26, 46, 0.8);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 1px solid rgba(165, 180, 252, 0.2);
+            backdrop-filter: blur(5px);
+            position: relative;
+        }
+        
+        .anime-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #a5b4fc, #6366f1);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+        
+        .anime-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3), 0 0 15px rgba(165, 180, 252, 0.2);
+        }
+        
+        .anime-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .anime-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .anime-info {
+            padding: 1rem;
+        }
+        
+        .anime-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #e0e7ff;
+        }
+        
+        .anime-episodes {
+            color: #a5b4fc;
+            font-size: 0.9rem;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            margin: 2rem auto;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 900px;
+            width: 90%;
+            position: relative;
+            border: 1px solid rgba(165, 180, 252, 0.2);
+            box-shadow: 0 0 30px rgba(165, 180, 252, 0.1);
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            color: #e0e7ff;
+            font-size: 2rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            z-index: 1001;
+            transition: color 0.3s;
+        }
+        
+        .close-modal:hover {
+            color: #a5b4fc;
+        }
+        
+        .player-container {
+            position: relative;
+            padding-top: 56.25%;
+            height: 0;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            background: #000;
+            border-radius: 8px;
+            border: 1px solid rgba(165, 180, 252, 0.2);
+        }
+        
+        .player-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 4px;
+        }
+        
+        .anime-details {
+            margin-top: 1.5rem;
+        }
+        
+        .episodes-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .episode-btn {
+            background: rgba(22, 33, 62, 0.8);
+            border: 1px solid rgba(165, 180, 252, 0.3);
+            color: #e0e7ff;
+            padding: 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .episode-btn:hover, .episode-btn.active {
+            background: #a5b4fc;
+            color: #1a1a2e;
+            box-shadow: 0 0 10px rgba(165, 180, 252, 0.5);
+        }
+        
+        .episode-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(22, 33, 62, 0.8);
+            border-radius: 8px;
+            border: 1px solid rgba(165, 180, 252, 0.2);
+        }
+        
+        footer {
+            background: rgba(26, 26, 46, 0.8);
+            padding: 2rem 1rem;
+            text-align: center;
+            margin-top: 3rem;
+            border-top: 1px solid rgba(165, 180, 252, 0.2);
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #a5b4fc;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(165, 180, 252, 0.5);
+        }
+        
+        .search-results {
+            margin-bottom: 2rem;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            color: #a5b4fc;
+            font-size: 1.2rem;
+        }
+        
+        /* Модальное окно авторизации */
+        .auth-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .auth-modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+            border: 1px solid rgba(165, 180, 252, 0.2);
+            box-shadow: 0 0 30px rgba(165, 180, 252, 0.1);
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(165, 180, 252, 0.3);
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: 0.8rem;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: #e0e7ff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .auth-tab.active {
+            color: #a5b4fc;
+            border-bottom: 2px solid #a5b4fc;
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #e0e7ff;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(22, 33, 62, 0.8);
+            border: 1px solid rgba(165, 180, 252, 0.3);
+            border-radius: 6px;
+            color: #e0e7ff;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #a5b4fc;
+            box-shadow: 0 0 5px rgba(165, 180, 252, 0.5);
+        }
+        
+        .auth-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: #a5b4fc;
+            color: #1a1a2e;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .auth-btn:hover {
+            background: #8b9cf9;
+            box-shadow: 0 0 10px rgba(165, 180, 252, 0.5);
+        }
+        
+        .auth-error {
+            color: #ff6b6b;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-left: 1.5rem;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #a5b4fc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.5rem;
+            color: #1a1a2e;
+            font-weight: bold;
+            cursor: pointer;
+            overflow: hidden;
+            border: 2px solid #a5b4fc;
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .user-name {
+            color: #e0e7ff;
+            margin-right: 1rem;
+            cursor: pointer;
+        }
+        
+        .logout-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 107, 107, 0.5);
+            color: #ff6b6b;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255, 107, 107, 0.1);
+        }
+        
+        /* Секция комментариев */
+        .comments-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(165, 180, 252, 0.2);
+        }
+        
+        .comments-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #e0e7ff;
+        }
+        
+        .comment-form {
+            margin-bottom: 2rem;
+        }
+        
+        .comment-textarea {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(22, 33, 62, 0.8);
+            border: 1px solid rgba(165, 180, 252, 0.3);
+            border-radius: 6px;
+            color: #e0e7ff;
+            font-size: 1rem;
+            min-height: 100px;
+            resize: vertical;
+            transition: all 0.3s;
+        }
+        
+        .comment-textarea:focus {
+            outline: none;
+            border-color: #a5b4fc;
+            box-shadow: 0 0 5px rgba(165, 180, 252, 0.5);
+        }
+        
+        .comment-submit-btn {
+            background: #a5b4fc;
+            color: #1a1a2e;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            transition: all 0.3s;
+        }
+        
+        .comment-submit-btn:hover {
+            background: #8b9cf9;
+            box-shadow: 0 0 10px rgba(165, 180, 252, 0.5);
+        }
+        
+        .comment-submit-btn:disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+        }
+        
+        .comments-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .comment-item {
+            background: rgba(22, 33, 62, 0.8);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(165, 180, 252, 0.2);
+            position: relative;
+        }
+        
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .comment-author {
+            display: flex;
+            align-items: center;
+        }
+        
+        .comment-author-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #a5b4fc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.5rem;
+            color: #1a1a2e;
+            font-size: 0.8rem;
+            font-weight: bold;
+            overflow: hidden;
+        }
+        
+        .comment-author-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .comment-author-name {
+            font-weight: bold;
+            color: #e0e7ff;
+        }
+        
+        .comment-date {
+            color: #a5b4fc;
+            font-size: 0.8rem;
+        }
+        
+        .comment-text {
+            color: #e0e7ff;
+            line-height: 1.5;
+        }
+        
+        .comment-actions {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .comment-delete-btn {
+            background: transparent;
+            border: none;
+            color: #ff6b6b;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+        }
+        
+        .comment-delete-btn:hover {
+            color: #ff5252;
+        }
+        
+        .no-comments {
+            text-align: center;
+            padding: 2rem;
+            color: #a5b4fc;
+        }
+        
+        /* Модальное окно профиля */
+        .profile-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .profile-modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            border: 1px solid rgba(165, 180, 252, 0.2);
+            box-shadow: 0 0 30px rgba(165, 180, 252, 0.1);
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #a5b4fc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1.5rem;
+            color: #1a1a2e;
+            font-size: 2rem;
+            font-weight: bold;
+            overflow: hidden;
+            border: 3px solid #a5b4fc;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .profile-avatar-edit {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+        
+        .profile-info {
+            flex: 1;
+        }
+        
+        .profile-username {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #e0e7ff;
+        }
+        
+        .profile-email {
+            color: #a5b4fc;
+            font-size: 0.9rem;
+        }
+        
+        .profile-role {
+            color: #ffd700;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .avatar-upload {
+            margin-top: 1.5rem;
+        }
+        
+        .avatar-upload input {
+            display: none;
+        }
+        
+        .avatar-upload-label {
+            display: inline-block;
+            padding: 0.7rem 1.5rem;
+            background: #a5b4fc;
+            color: #1a1a2e;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .avatar-upload-label:hover {
+            background: #8b9cf9;
+            box-shadow: 0 0 10px rgba(165, 180, 252, 0.5);
+        }
+        
+        .avatar-preview {
+            margin-top: 1rem;
+            text-align: center;
+        }
+        
+        .avatar-preview img {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 8px;
+            border: 2px solid #a5b4fc;
+        }
+        
+        .save-avatar-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: #a5b4fc;
+            color: #1a1a2e;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .save-avatar-btn:hover {
+            background: #8b9cf9;
+            box-shadow: 0 0 10px rgba(165, 180, 252, 0.5);
+        }
+        
+        /* Секция пользователей */
+        .users-section {
+            margin-top: 2rem;
+        }
+        
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .user-card {
+            background: rgba(26, 26, 46, 0.8);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(165, 180, 252, 0.2);
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .user-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .user-card-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #a5b4fc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: #1a1a2e;
+            font-size: 1.5rem;
+            font-weight: bold;
+            overflow: hidden;
+            border: 3px solid #a5b4fc;
+        }
+        
+        .user-card-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .user-card-name {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #e0e7ff;
+        }
+        
+        .user-card-role {
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .user-card-email {
+            color: #a5b4fc;
+            font-size: 0.9rem;
+        }
+        
+        /* Секция управления пользователями */
+        .admin-section {
+            margin-top: 2rem;
+        }
+        
+        .admin-panel {
+            background: rgba(26, 26, 46, 0.8);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(165, 180, 252, 0.2);
+            margin-top: 1.5rem;
+        }
+        
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .users-table th,
+        .users-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(165, 180, 252, 0.2);
+        }
+        
+        .users-table th {
+            color: #a5b4fc;
+            font-weight: bold;
+        }
+        
+        .users-table td {
+            color: #e0e7ff;
+        }
+        
+        .user-table-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #a5b4fc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1a1a2e;
+            font-weight: bold;
+            overflow: hidden;
+        }
+        
+        .user-table-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .role-select {
+            background: rgba(22, 33, 62, 0.8);
+            border: 1px solid rgba(165, 180, 252, 0.3);
+            border-radius: 6px;
+            color: #e0e7ff;
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .role-select:focus {
+            outline: none;
+            border-color: #a5b4fc;
+        }
+        
+        .save-role-btn {
+            background: #a5b4fc;
+            color: #1a1a2e;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .save-role-btn:hover {
+            background: #8b9cf9;
+            box-shadow: 0 0 10px rgba(165, 180, 252, 0.5);
+        }
+        
+        /* Мобильные стили */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: row;
+                text-align: center;
+            }
+            
+            .hamburger {
+                display: flex;
+            }
+            
+            nav {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                height: 100vh;
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+                transition: right 0.3s ease;
+                z-index: 100;
+                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                padding: 2rem;
+            }
+            
+            nav.active {
+                right: 0;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            nav ul li {
+                margin: 0;
+                margin-bottom: 1.5rem;
+            }
+            
+            nav ul li a {
+                display: block;
+                padding: 1rem;
+                text-align: center;
+                font-size: 1.2rem;
+                border: 1px solid rgba(165, 180, 252, 0.3);
+                border-radius: 8px;
+            }
+            
+            .search-container {
+                margin: 1rem 0;
+                max-width: 100%;
+                order: 3;
+                width: 100%;
+            }
+            
+            .anime-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .episodes-list {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            }
+            
+            .user-info {
+                margin-left: 0;
+                margin-top: 1rem;
+                justify-content: center;
+                width: 100%;
+            }
+            
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .profile-avatar {
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+            
+            .users-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+            
+            .users-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+        
+        /* Затемнение фона при открытом меню */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 99;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        /* Стили для активной секции */
+        .anime-section {
+            display: none;
+        }
+        
+        .anime-section.active {
+            display: block;
+        }
+        
+        /* Стили для уведомлений */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            z-index: 10000;
+            max-width: 400px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background: #10b981;
+        }
+        
+        .notification.error {
+            background: #ef4444;
+        }
+        
+        .notification.info {
+            background: #3b82f6;
+        }
+        
+        .github-info {
+            background: rgba(22, 33, 62, 0.8);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border: 1px solid rgba(165, 180, 252, 0.2);
+            text-align: center;
+        }
+        
+        .github-link {
+            color: #a5b4fc;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 0 0.5rem;
+        }
+        
+        .github-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay" id="overlay"></div>
+    
+    <!-- Уведомления -->
+    <div class="notification" id="notification"></div>
+    
+    <!-- Модальное окно авторизации -->
+    <div class="auth-modal" id="auth-modal">
+        <div class="auth-modal-content">
+            <button class="close-modal" id="close-auth-modal">&times;</button>
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="login-tab">Вход</button>
+                <button class="auth-tab" id="register-tab">Регистрация</button>
+            </div>
+            
+            <form class="auth-form active" id="login-form">
+                <div class="form-group">
+                    <label for="login-username">Имя пользователя</label>
+                    <input type="text" id="login-username" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Пароль</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="auth-btn">Войти</button>
+                <div class="auth-error" id="login-error"></div>
+            </form>
+            
+            <form class="auth-form" id="register-form">
+                <div class="form-group">
+                    <label for="register-username">Имя пользователя</label>
+                    <input type="text" id="register-username" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Пароль</label>
+                    <input type="password" id="register-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-confirm-password">Подтвердите пароль</label>
+                    <input type="password" id="register-confirm-password" required>
+                </div>
+                <button type="submit" class="auth-btn">Зарегистрироваться</button>
+                <div class="auth-error" id="register-error"></div>
+            </form>
+            
+            <div class="github-info">
+                <p>Все данные сохраняются в GitHub репозитории:</p>
+                <a href="https://github.com/AkrifisOfficial/LisanDub-rep" class="github-link" target="_blank">
+                    <i class="fab fa-github"></i> Посмотреть репозиторий
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно профиля -->
+    <div class="profile-modal" id="profile-modal">
+        <div class="profile-modal-content">
+            <button class="close-modal" id="close-profile-modal">&times;</button>
+            <div class="profile-header">
+                <div class="profile-avatar" id="profile-avatar">
+                    <div class="profile-avatar-edit">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                </div>
+                <div class="profile-info">
+                    <h2 class="profile-username" id="profile-username"></h2>
+                    <p class="profile-email" id="profile-email"></p>
+                    <p class="profile-role" id="profile-role"></p>
+                </div>
+            </div>
+            
+            <div class="avatar-upload">
+                <input type="file" id="avatar-input" accept="image/*">
+                <label for="avatar-input" class="avatar-upload-label">Выбрать аватар</label>
+                
+                <div class="avatar-preview" id="avatar-preview" style="display: none;">
+                    <img id="preview-image" src="" alt="Предпросмотр аватара">
+                </div>
+                
+                <button class="save-avatar-btn" id="save-avatar-btn">Сохранить аватар</button>
+            </div>
+        </div>
+    </div>
+    
+    <header>
+        <div class="header-content">
+            <div class="logo"><i class="fas fa-moon"></i>Dreamy<span>Voice</span></div>
+            
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" placeholder="Поиск аниме...">
+            </div>
+            
+            <button class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            
+            <nav id="nav">
+                <ul>
+                    <li><a href="#" class="nav-link active" data-category="new">Онгоинги</a></li>
+                    <li><a href="#" class="nav-link" data-category="completed">Завершённые</a></li>
+                    <li><a href="#" class="nav-link" data-category="users">Пользователи</a></li>
+                    <li id="admin-nav-link" style="display: none;">
+                        <a href="#" class="nav-link" data-category="admin">Управление</a>
+                    </li>
+                    <li><a href="#" class="admin-link" id="admin-link">Админ-панель</a></li>
+                    <li><a href="#" id="about-link">О нас</a></li>
+                    <li id="auth-link-container">
+                        <a href="#" id="auth-link">Войти</a>
+                    </li>
+                    <li id="user-info-container" style="display: none;">
+                        <div class="user-info">
+                            <div class="user-avatar" id="user-avatar"></div>
+                            <span class="user-name" id="user-name"></span>
+                            <button class="logout-btn" id="logout-btn">Выйти</button>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="loader" id="loader">
+            <i class="fas fa-spinner"></i> Загрузка аниме...
+        </div>
+
+        <div id="content" style="display: none;">
+            <div class="search-results" id="search-results" style="display: none;">
+                <h2 class="section-title">Результаты поиска</h2>
+                <div class="anime-grid" id="search-results-grid"></div>
+                <div class="no-results" id="no-results" style="display: none;">
+                    <i class="fas fa-search"></i>
+                    <p>По вашему запросу ничего не найдено</p>
+                </div>
+            </div>
+
+            <section id="new-section" class="anime-section active">
+                <h2 class="section-title">Онгоинги</h2>
+                <div class="anime-grid" id="new-releases"></div>
+            </section>
+
+            <section id="completed-section" class="anime-section">
+                <h2 class="section-title">Завершённые</h2>
+                <div class="anime-grid" id="completed"></div>
+            </section>
+
+            <!-- Новая секция: Пользователи -->
+            <section id="users-section" class="anime-section">
+                <h2 class="section-title">Пользователи</h2>
+                <div class="users-grid" id="users-grid"></div>
+            </section>
+
+            <!-- Новая секция: Управление пользователями -->
+            <section id="admin-section" class="anime-section">
+                <h2 class="section-title">Управление пользователями</h2>
+                <div class="admin-panel">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Аватар</th>
+                                <th>Имя пользователя</th>
+                                <th>Email</th>
+                                <th>Роль</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-users-table">
+                            <!-- Данные будут загружены через JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="modal" id="video-modal">
+        <div class="modal-content">
+            <button class="close-modal" id="close-modal">&times;</button>
+            <div class="player-container" id="player-container">
+                <!-- Плеер Kodik будет вставлен здесь -->
+            </div>
+            <div class="anime-details">
+                <h2 id="modal-title">Название аниме</h2>
+                <p id="modal-description">Описание аниме</p>
+                <h3>Выберите серию:</h3>
+                <div class="episodes-list" id="episodes-list">
+                    <!-- Кнопки серий будут добавлены через JavaScript -->
+                </div>
+                
+                <!-- Секция комментариев -->
+                <div class="comments-section" id="comments-section">
+                    <h3 class="comments-title">Комментарии</h3>
+                    <div class="comment-form" id="comment-form">
+                        <textarea class="comment-textarea" id="comment-text" placeholder="Оставьте ваш комментарий..." required></textarea>
+                        <button class="comment-submit-btn" id="comment-submit-btn" disabled>Отправить</button>
+                    </div>
+                    <div class="comments-list" id="comments-list">
+                        <!-- Комментарии будут загружены здесь -->
+                    </div>
+                </div>
+                
+                <div class="episode-info" id="episode-info">
+                    <!-- Информация о выбранной серии будет здесь -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">DreamyVoice</div>
+            <p>© 2025 DreamyVoice. Все права защищены.</p>
+            <p>Сайт предназначен только для ознакомительного просмотра</p>
+            <div class="github-info">
+                <p>Данные пользователей и комментариев хранятся в GitHub репозитории:</p>
+                <a href="https://github.com/AkrifisOfficial/LisanDub-rep" class="github-link" target="_blank">
+                    <i class="fab fa-github"></i> AkrifisOfficial/LisanDub-rep
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Конфигурация GitHub репозитория
+        const GITHUB_CONFIG = {
+            owner: 'AkrifisOfficial',
+            repo: 'LisanDub-rep',
+            branch: 'main',
+            token: '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' // Замените на ваш GitHub токен
+        };
+
+        // URL к внешнему JSON-файлу с данными об аниме
+        const ANIME_DATA_URL = 'https://raw.githubusercontent.com/AkrifisOfficial/LisanDub-rep/main/anime-data.json';
+        
+        // URL для данных пользователей и комментариев в GitHub
+        const USERS_DATA_URL = 'https://raw.githubusercontent.com/AkrifisOfficial/LisanDub-rep/main/users.json';
+        const COMMENTS_DATA_URL = 'https://raw.githubusercontent.com/AkrifisOfficial/LisanDub-rep/main/comments.json';
+        const AVATARS_DATA_URL = 'https://raw.githubusercontent.com/AkrifisOfficial/LisanDub-rep/main/avatars.json';
+        
+        // Кэш для хранения загруженных данных
+        let animeData = [];
+        let usersData = [];
+        let commentsData = [];
+        let avatarsData = [];
+        let currentAnime = null;
+        let currentEpisode = 0;
+        let currentIframe = null;
+        
+        // Текущий пользователь
+        let currentUser = null;
+        let avatarFile = null;
+
+        // Функция для показа уведомлений
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Функция для загрузки данных об аниме
+        async function loadAnimeData() {
+            try {
+                const response = await fetch(ANIME_DATA_URL);
+                if (!response.ok) {
+                    throw new Error(`Ошибка HTTP: ${response.status}`);
+                }
+                animeData = await response.json();
+                
+                // Загружаем данные пользователей и комментариев
+                await loadUsersData();
+                await loadCommentsData();
+                await loadAvatarsData();
+                
+                // Скрываем загрузчик и показываем контент
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+                
+                // Рендерим аниме
+                renderAnimeCards();
+                
+                // По умолчанию показываем онгоинги
+                showCategory('new');
+                
+                // Проверяем авторизацию пользователя
+                checkAuthStatus();
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
+                document.getElementById('loader').innerHTML = 
+                    '<p>Ошибка загрузки данных. Пожалуйста, проверьте подключение к интернету и обновите страницу.</p>';
+            }
+        }
+
+        // Функция для загрузки данных пользователей из GitHub
+        async function loadUsersData() {
+            try {
+                const response = await fetch(USERS_DATA_URL);
+                if (!response.ok) {
+                    // Если файл не существует, создаем пустой массив
+                    if (response.status === 404) {
+                        usersData = [];
+                        return;
+                    }
+                    throw new Error(`Ошибка HTTP: ${response.status}`);
+                }
+                usersData = await response.json();
+            } catch (error) {
+                console.error('Ошибка загрузки данных пользователей:', error);
+                usersData = [];
+            }
+        }
+
+        // Функция для загрузки данных комментариев из GitHub
+        async function loadCommentsData() {
+            try {
+                const response = await fetch(COMMENTS_DATA_URL);
+                if (!response.ok) {
+                    // Если файл не существует, создаем пустой массив
+                    if (response.status === 404) {
+                        commentsData = [];
+                        return;
+                    }
+                    throw new Error(`Ошибка HTTP: ${response.status}`);
+                }
+                commentsData = await response.json();
+            } catch (error) {
+                console.error('Ошибка загрузки данных комментариев:', error);
+                commentsData = [];
+            }
+        }
+
+        // Функция для загрузки данных аватаров из GitHub
+        async function loadAvatarsData() {
+            try {
+                const response = await fetch(AVATARS_DATA_URL);
+                if (!response.ok) {
+                    // Если файл не существует, создаем пустой объект
+                    if (response.status === 404) {
+                        avatarsData = {};
+                        return;
+                    }
+                    throw new Error(`Ошибка HTTP: ${response.status}`);
+                }
+                avatarsData = await response.json();
+            } catch (error) {
+                console.error('Ошибка загрузки данных аватаров:', error);
+                avatarsData = {};
+            }
+        }
+
+        // Функция для сохранения данных в GitHub репозиторий
+        async function saveToGitHub(filename, data) {
+            try {
+                // Получаем текущий SHA файла (если существует)
+                let sha = null;
+                try {
+                    const fileResponse = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${filename}`, {
+                        headers: {
+                            'Authorization': `token ${GITHUB_CONFIG.token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    
+                    if (fileResponse.ok) {
+                        const fileData = await fileResponse.json();
+                        sha = fileData.sha;
+                    }
+                } catch (error) {
+                    console.log(`Файл ${filename} не существует, будет создан новый`);
+                }
+                
+                // Кодируем данные в base64
+                const content = btoa(JSON.stringify(data, null, 2));
+                
+                // Отправляем запрос на создание/обновление файла
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${filename}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${GITHUB_CONFIG.token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/vnd.github.v3+json'
+                    },
+                    body: JSON.stringify({
+                        message: `Update ${filename}`,
+                        content: content,
+                        branch: GITHUB_CONFIG.branch,
+                        sha: sha
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Ошибка HTTP: ${response.status}`);
+                }
+                
+                return true;
+            } catch (error) {
+                console.error(`Ошибка сохранения в GitHub (${filename}):`, error);
+                throw error;
+            }
+        }
+
+        // Функция для отображения карточек аниме
+        function renderAnimeCards() {
+            const newReleasesContainer = document.getElementById('new-releases');
+            const completedContainer = document.getElementById('completed');
+            
+            // Очищаем контейнеры
+            newReleasesContainer.innerHTML = '';
+            completedContainer.innerHTML = '';
+            
+            // Добавляем карточки в соответствующие разделы
+            animeData.forEach(anime => {
+                const card = createAnimeCard(anime);
+                
+                // Распределяем аниме по разделам
+                if (anime.category === 'new') {
+                    newReleasesContainer.appendChild(card);
+                } else if (anime.category === 'completed') {
+                    completedContainer.appendChild(ccard);
+                }
+            });
+        }
+
+        // Функция для создания карточки аниме
+        function createAnimeCard(anime) {
+            const card = document.createElement('div');
+            card.className = 'anime-card';
+            card.innerHTML = `
+                <img src="${anime.image}" alt="${anime.title}" onerror="this.src='https://via.placeholder.com/300x400/1a1a2e/a5b4fc?text=No+Image'">
+                <div class="anime-info">
+                    <h3 class="anime-title">${anime.title}</h3>
+                    <p class="anime-episodes">Серии: ${anime.episodes}</p>
+                </div>
+            `;
+            
+            // Добавляем обработчик клика для открытия модального окна
+            card.addEventListener('click', () => openVideoModal(anime));
+            
+            return card;
+        }
+
+        // Функция для поиска аниме
+        function searchAnime(query) {
+            const searchResultsSection = document.getElementById('search-results');
+            const searchResultsGrid = document.getElementById('search-results-grid');
+            const noResults = document.getElementById('no-results');
+            
+            // Очищаем результаты предыдущего поиска
+            searchResultsGrid.innerHTML = '';
+            
+            // Если запрос пустой, скрываем секцию результатов поиска
+            if (!query.trim()) {
+                searchResultsSection.style.display = 'none';
+                // Показываем активную категорию
+                const activeCategory = document.querySelector('.nav-link.active').getAttribute('data-category');
+                showCategory(activeCategory);
+                return;
+            }
+            
+            // Скрываем все категории
+            document.querySelectorAll('.anime-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Показываем секцию результатов поиска
+            searchResultsSection.style.display = 'block';
+            
+            // Ищем аниме по запросу
+            const filteredAnime = animeData.filter(anime => 
+                anime.title.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            // Если найдены результаты, отображаем их
+            if (filteredAnime.length > 0) {
+                noResults.style.display = 'none';
+                filteredAnime.forEach(anime => {
+                    const card = createAnimeCard(anime);
+                    searchResultsGrid.appendChild(card);
+                });
+            } else {
+                // Если результатов нет, показываем сообщение
+                noResults.style.display = 'block';
+            }
+        }
+
+        // Функция для отображения определенной категории
+        function showCategory(category) {
+            // Скрываем все секции
+            document.querySelectorAll('.anime-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Скрываем результаты поиска
+            document.getElementById('search-results').style.display = 'none';
+            
+            // Показываем выбранную категорию
+            document.getElementById(`${category}-section`).classList.add('active');
+            
+            // Обновляем активную ссылку в навигации
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`.nav-link[data-category="${category}"]`).classList.add('active');
+            
+            // Если это раздел пользователей, отображаем пользователей
+            if (category === 'users') {
+                renderUsers();
+            } else if (category === 'admin') {
+                // Если это раздел управления, проверяем права
+                if (currentUser && currentUser.role === 'admin') {
+                    renderAdminPanel();
+                } else {
+                    showNotification('У вас нет прав для доступа к этой странице', 'error');
+                    // Показываем другую категорию, например, онгоинги
+                    showCategory('new');
+                }
+            }
+        }
+
+        // Функция для остановки видео
+        function stopVideo() {
+            if (currentIframe) {
+                // Останавливаем видео, заменяя src на пустую строку
+                currentIframe.src = '';
+                currentIframe = null;
+            }
+        }
+
+        // Функция для открытия модального окна с видеоплеером Kodik
+        function openVideoModal(anime) {
+            currentAnime = anime;
+            currentEpisode = 0;
+            
+            const modal = document.getElementById('video-modal');
+            const playerContainer = document.getElementById('player-container');
+            const modalTitle = document.getElementById('modal-title');
+            const modalDescription = document.getElementById('modal-description');
+            const episodesList = document.getElementById('episodes-list');
+            const episodeInfo = document.getElementById('episode-info');
+            const commentsSection = document.getElementById('comments-section');
+            const commentForm = document.getElementById('comment-form');
+            const commentText = document.getElementById('comment-text');
+            const commentSubmitBtn = document.getElementById('comment-submit-btn');
+            
+            // Устанавливаем информацию об аниме
+            modalTitle.textContent = anime.title;
+            modalDescription.textContent = anime.description;
+            
+            // Очищаем контейнер плеера и список серий
+            playerContainer.innerHTML = '';
+            episodesList.innerHTML = '';
+            episodeInfo.innerHTML = '';
+            
+            // Добавляем первую серию в плеер
+            if (anime.kodikLinks && anime.kodikLinks.length > 0) {
+                loadKodikEpisode(0);
+            }
+            
+            // Добавляем кнопки для выбора серий
+            if (anime.kodikLinks) {
+                anime.kodikLinks.forEach((episode, index) => {
+                    const episodeBtn = document.createElement('button');
+                    episodeBtn.className = 'episode-btn';
+                    if (index === 0) episodeBtn.classList.add('active');
+                    episodeBtn.textContent = `Серия ${index + 1}`;
+                    episodeBtn.addEventListener('click', () => {
+                        // Убираем активный класс у всех кнопок
+                        document.querySelectorAll('.episode-btn').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        // Добавляем активный класс к текущей кнопке
+                        episodeBtn.classList.add('active');
+                        
+                        // Загружаем выбранную серию
+                        loadKodikEpisode(index);
+                    });
+                    episodesList.appendChild(episodeBtn);
+                });
+            }
+            
+            // Настраиваем форму комментариев
+            commentText.value = '';
+            commentSubmitBtn.disabled = true;
+            
+            // Показываем/скрываем форму комментариев в зависимости от авторизации
+            if (currentUser) {
+                commentForm.style.display = 'block';
+                commentText.addEventListener('input', () => {
+                    commentSubmitBtn.disabled = commentText.value.trim() === '';
+                });
+                
+                commentSubmitBtn.addEventListener('click', () => {
+                    submitComment(anime.id, commentText.value.trim());
+                });
+            } else {
+                commentForm.style.display = 'none';
+            }
+            
+            // Загружаем комментарии для этого аниме
+            loadComments(anime.id);
+            
+            // Показываем модальное окно
+            modal.style.display = 'block';
+            
+            // Блокируем прокрутку body
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Функция для загрузки определенной серии через плеер Kodik
+        function loadKodikEpisode(index) {
+            const playerContainer = document.getElementById('player-container');
+            const episodeInfo = document.getElementById('episode-info');
+            currentEpisode = index;
+            
+            // Останавливаем предыдущее видео
+            stopVideo();
+            
+            // Получаем данные о серии
+            const episode = currentAnime.kodikLinks[index];
+            
+            // Очищаем и обновляем плеер
+            playerContainer.innerHTML = '';
+            
+            // Создаем iframe для плеера Kodik
+            const iframe = document.createElement('iframe');
+            iframe.src = episode.playerUrl;
+            iframe.allowFullscreen = true;
+            iframe.allow = "autoplay; fullscreen";
+            playerContainer.appendChild(iframe);
+            
+            // Сохраняем ссылку на текущий iframe для возможности остановки
+            currentIframe = iframe;
+            
+            // Обновляем информацию о серии
+            episodeInfo.innerHTML = `
+                <h4>Серия ${index + 1}</h4>
+                <p>${episode.title || 'Без названия'}</p>
+                <p>Длительность: ${episode.duration || 'неизвестно'}</p>
+            `;
+        }
+
+        // Функция для закрытия модального окна
+        function closeVideoModal() {
+            const modal = document.getElementById('video-modal');
+            
+            // Останавливаем видео перед закрытием
+            stopVideo();
+            
+            modal.style.display = 'none';
+            
+            // Восстанавливаем прокрутку body
+            document.body.style.overflow = 'auto';
+        }
+
+        // Функции для работы с гамбургер-меню
+        function toggleMenu() {
+            const nav = document.getElementById('nav');
+            const hamburger = document.getElementById('hamburger');
+            const overlay = document.getElementById('overlay');
+            
+            nav.classList.toggle('active');
+            hamburger.classList.toggle('active');
+            overlay.classList.toggle('active');
+            
+            if (nav.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        function closeMenu() {
+            const nav = document.getElementById('nav');
+            const hamburger = document.getElementById('hamburger');
+            const overlay = document.getElementById('overlay');
+            
+            nav.classList.remove('active');
+            hamburger.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С АВТОРИЗАЦИЕЙ И КОММЕНТАРИЯМИ ==========
+
+        // Простая функция для хеширования пароля
+        function hashPassword(password) {
+            return CryptoJS.SHA256(password).toString();
+        }
+
+        // Проверка статуса авторизации
+        async function checkAuthStatus() {
+            try {
+                const currentUserId = localStorage.getItem('currentUserId');
+                
+                if (currentUserId) {
+                    const user = usersData.find(u => u.id === parseInt(currentUserId));
+                    if (user) {
+                        setCurrentUser(user);
+                        return;
+                    }
+                }
+                
+                // Если пользователь не найден, очищаем
+                clearCurrentUser();
+            } catch (error) {
+                console.error('Ошибка проверки авторизации:', error);
+                clearCurrentUser();
+            }
+        }
+
+        // Установка текущего пользователя
+        function setCurrentUser(user) {
+            currentUser = user;
+            localStorage.setItem('currentUserId', user.id);
+            
+            // Обновляем интерфейс
+            document.getElementById('auth-link-container').style.display = 'none';
+            document.getElementById('user-info-container').style.display = 'block';
+            document.getElementById('user-name').textContent = user.username;
+            
+            // Устанавливаем аватар пользователя
+            updateUserAvatar(user.id);
+            
+            // Показываем или скрываем ссылку на панель управления в зависимости от роли
+            if (user.role === 'admin') {
+                document.getElementById('admin-nav-link').style.display = 'block';
+            } else {
+                document.getElementById('admin-nav-link').style.display = 'none';
+            }
+            
+            // Показываем уведомление
+            showNotification(`Добро пожаловать, ${user.username}!`, 'success');
+        }
+
+        // Обновление аватара пользователя в интерфейсе
+        function updateUserAvatar(userId) {
+            const userAvatar = document.getElementById('user-avatar');
+            const profileAvatar = document.getElementById('profile-avatar');
+            const profileRole = document.getElementById('profile-role');
+            
+            // Проверяем, есть ли аватар для пользователя
+            if (avatarsData[userId]) {
+                userAvatar.innerHTML = `<img src="${avatarsData[userId]}" alt="Аватар">`;
+                profileAvatar.innerHTML = `
+                    <img src="${avatarsData[userId]}" alt="Аватар">
+                    <div class="profile-avatar-edit">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                `;
+            } else {
+                userAvatar.textContent = currentUser.username.charAt(0).toUpperCase();
+                profileAvatar.innerHTML = `
+                    ${currentUser.username.charAt(0).toUpperCase()}
+                    <div class="profile-avatar-edit">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                `;
+            }
+            
+            // Устанавливаем роль пользователя
+            if (profileRole) {
+                profileRole.textContent = `Роль: ${currentUser.role}`;
+            }
+        }
+
+        // Сброс текущего пользователя
+        function clearCurrentUser() {
+            currentUser = null;
+            localStorage.removeItem('currentUserId');
+            
+            // Обновляем интерфейс
+            document.getElementById('auth-link-container').style.display = 'block';
+            document.getElementById('user-info-container').style.display = 'none';
+            document.getElementById('admin-nav-link').style.display = 'none';
+        }
+
+        // Открытие модального окна авторизации
+        function openAuthModal() {
+            document.getElementById('auth-modal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Закрытие модального окна авторизации
+        function closeAuthModal() {
+            document.getElementById('auth-modal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            
+            // Сбрасываем ошибки
+            document.getElementById('login-error').style.display = 'none';
+            document.getElementById('register-error').style.display = 'none';
+        }
+
+        // Открытие модального окна профиля
+        function openProfileModal() {
+            document.getElementById('profile-modal').style.display = 'block';
+            document.getElementById('profile-username').textContent = currentUser.username;
+            document.getElementById('profile-email').textContent = currentUser.email;
+            document.getElementById('profile-role').textContent = `Роль: ${currentUser.role}`;
+            
+            // Сбрасываем предпросмотр аватара
+            document.getElementById('avatar-preview').style.display = 'none';
+            avatarFile = null;
+            
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Закрытие модального окна профиля
+        function closeProfileModal() {
+            document.getElementById('profile-modal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Переключение между вкладками авторизации
+        function switchAuthTab(tabName) {
+            // Обновляем активные вкладки
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.auth-form').forEach(form => {
+                form.classList.remove('active');
+            });
+            
+            if (tabName === 'login') {
+                document.getElementById('login-tab').classList.add('active');
+                document.getElementById('login-form').classList.add('active');
+            } else {
+                document.getElementById('register-tab').classList.add('active');
+                document.getElementById('register-form').classList.add('active');
+            }
+        }
+
+        // Регистрация нового пользователя
+        async function registerUser(username, email, password) {
+            try {
+                // Проверяем, существует ли пользователь
+                if (usersData.find(u => u.username === username)) {
+                    return { success: false, message: 'Пользователь с таким именем уже существует' };
+                }
+                
+                if (usersData.find(u => u.email === email)) {
+                    return { success: false, message: 'Пользователь с таким email уже существует' };
+                }
+                
+                // Создаем нового пользователя
+                const newUser = {
+                    id: Date.now(),
+                    username,
+                    email,
+                    password: hashPassword(password),
+                    role: 'user', // По умолчанию обычный пользователь
+                    createdAt: new Date().toISOString()
+                };
+                
+                // Добавляем пользователя в данные
+                usersData.push(newUser);
+                
+                // Сохраняем данные в GitHub
+                await saveToGitHub('users.json', usersData);
+                
+                // Устанавливаем текущего пользователя
+                setCurrentUser(newUser);
+                closeAuthModal();
+                
+                return { success: true };
+            } catch (error) {
+                console.error('Ошибка регистрации:', error);
+                return { success: false, message: 'Ошибка регистрации. Попробуйте позже.' };
+            }
+        }
+
+        // Авторизация пользователя
+        async function loginUser(username, password) {
+            try {
+                // Ищем пользователя
+                const user = usersData.find(u => u.username === username && u.password === hashPassword(password));
+                
+                if (!user) {
+                    return { success: false, message: 'Неверное имя пользователя или пароль' };
+                }
+                
+                // Устанавливаем текущего пользователя
+                setCurrentUser(user);
+                closeAuthModal();
+                
+                return { success: true };
+            } catch (error) {
+                console.error('Ошибка авторизации:', error);
+                return { success: false, message: 'Ошибка авторизации. Попробуйте позже.' };
+            }
+        }
+
+        // Загрузка комментариев для аниме
+        async function loadComments(animeId) {
+            try {
+                const animeComments = commentsData.filter(c => c.animeId === animeId);
+                renderComments(animeComments);
+            } catch (error) {
+                console.error('Ошибка загрузки комментариев:', error);
+                renderComments([]);
+            }
+        }
+
+        // Отправка комментария
+        async function submitComment(animeId, text) {
+            if (!currentUser || !text.trim()) return;
+            
+            try {
+                const newComment = {
+                    id: Date.now(),
+                    animeId,
+                    userId: currentUser.id,
+                    username: currentUser.username,
+                    text,
+                    date: new Date().toISOString()
+                };
+                
+                // Добавляем комментарий в данные
+                commentsData.push(newComment);
+                
+                // Сохраняем комментарии в GitHub
+                await saveToGitHub('comments.json', commentsData);
+                
+                // Добавляем комментарий в список
+                const commentsList = document.getElementById('comments-list');
+                const commentElement = createCommentElement(newComment);
+                commentsList.insertBefore(commentElement, commentsList.firstChild);
+                
+                // Очищаем поле ввода
+                document.getElementById('comment-text').value = '';
+                document.getElementById('comment-submit-btn').disabled = true;
+                
+                showNotification('Комментарий успешно добавлен!', 'success');
+                
+                return { success: true };
+            } catch (error) {
+                console.error('Ошибка отправки комментария:', error);
+                showNotification('Не удалось отправить комментарий. Пожалуйста, попробуйте еще раз.', 'error');
+                return { success: false, message: error.message };
+            }
+        }
+
+        // Удаление комментария
+        async function deleteComment(commentId) {
+            if (!currentUser) return;
+            
+            try {
+                // Находим индекс комментария
+                const commentIndex = commentsData.findIndex(c => c.id === commentId);
+                
+                if (commentIndex === -1) {
+                    showNotification('Комментарий не найден', 'error');
+                    return;
+                }
+                
+                const comment = commentsData[commentIndex];
+                
+                // Проверяем, является ли пользователь автором комментария или администратором
+                if (comment.userId !== currentUser.id && currentUser.role !== 'admin') {
+                    showNotification('Вы можете удалять только свои комментарии', 'error');
+                    return;
+                }
+                
+                // Удаляем комментарий из данных
+                commentsData.splice(commentIndex, 1);
+                
+                // Сохраняем комментарии в GitHub
+                await saveToGitHub('comments.json', commentsData);
+                
+                // Удаляем комментарий из интерфейса
+                const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
+                if (commentElement) {
+                    commentElement.remove();
+                }
+                
+                showNotification('Комментарий удален', 'success');
+                
+                return { success: true };
+            } catch (error) {
+                console.error('Ошибка удаления комментария:', error);
+                showNotification('Не удалось удалить комментарий. Пожалуйста, попробуйте еще раз.', 'error');
+                return { success: false, message: error.message };
+            }
+        }
+
+        // Загрузка аватара
+        async function uploadAvatar(file) {
+            if (!currentUser) return;
+            
+            try {
+                // Читаем файл как Data URL
+                const reader = new FileReader();
+                
+                return new Promise((resolve, reject) => {
+                    reader.onload = async function(e) {
+                        try {
+                            // Сохраняем аватар в данных
+                            avatarsData[currentUser.id] = e.target.result;
+                            
+                            // Сохраняем аватары в GitHub
+                            await saveToGitHub('avatars.json', avatarsData);
+                            
+                            // Обновляем аватар в интерфейсе
+                            updateUserAvatar(currentUser.id);
+                            
+                            showNotification('Аватар успешно обновлен!', 'success');
+                            resolve({ success: true });
+                        } catch (error) {
+                            reject(error);
+                        }
+                    };
+                    
+                    reader.onerror = function() {
+                        reject(new Error('Ошибка чтения файла'));
+                    };
+                    
+                    reader.readAsDataURL(file);
+                });
+            } catch (error) {
+                console.error('Ошибка загрузки аватара:', error);
+                showNotification('Не удалось загрузить аватар. Пожалуйста, попробуйте еще раз.', 'error');
+                return { success: false, message: error.message };
+            }
+        }
+
+        // Изменение роли пользователя
+        async function changeUserRole(userId, newRole) {
+            try {
+                const user = usersData.find(u => u.id === userId);
+                if (!user) {
+                    showNotification('Пользователь не найден', 'error');
+                    return;
+                }
+                
+                user.role = newRole;
+                
+                // Сохраняем обновленных пользователей в GitHub
+                await saveToGitHub('users.json', usersData);
+                
+                showNotification(`Роль пользователя ${user.username} изменена на ${newRole}`, 'success');
+                
+                // Перерисовываем панель управления
+                renderAdminPanel();
+                
+                return { success: true };
+            } catch (error) {
+                console.error('Ошибка изменения роли:', error);
+                showNotification('Не удалось изменить роль пользователя', 'error');
+                return { success: false, message: error.message };
+            }
+        }
+
+        // Создание элемента комментария
+        function createCommentElement(comment) {
+            const commentElement = document.createElement('div');
+            commentElement.className = 'comment-item';
+            commentElement.setAttribute('data-comment-id', comment.id);
+            
+            const date = new Date(comment.date);
+            const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+            
+            // Получаем аватар автора комментария
+            const authorAvatar = avatarsData[comment.userId] 
+                ? `<img src="${avatarsData[comment.userId]}" alt="Аватар">`
+                : comment.username.charAt(0).toUpperCase();
+            
+            commentElement.innerHTML = `
+                <div class="comment-header">
+                    <div class="comment-author">
+                        <div class="comment-author-avatar">${authorAvatar}</div>
+                        <span class="comment-author-name">${comment.username}</span>
+                    </div>
+                    <span class="comment-date">${formattedDate}</span>
+                </div>
+                <div class="comment-text">${comment.text}</div>
+            `;
+            
+            // Добавляем кнопку удаления, если пользователь является автором комментария или администратором
+            if (currentUser && (comment.userId === currentUser.id || currentUser.role === 'admin')) {
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'comment-actions';
+                actionsDiv.innerHTML = `
+                    <button class="comment-delete-btn" data-comment-id="${comment.id}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                commentElement.appendChild(actionsDiv);
+                
+                // Добавляем обработчик для кнопки удаления
+                const deleteBtn = actionsDiv.querySelector('.comment-delete-btn');
+                deleteBtn.addEventListener('click', () => {
+                    deleteComment(comment.id);
+                });
+            }
+            
+            return commentElement;
+        }
+
+        // Отображение комментариев
+        function renderComments(comments) {
+            const commentsList = document.getElementById('comments-list');
+            commentsList.innerHTML = '';
+            
+            if (comments.length === 0) {
+                commentsList.innerHTML = '<div class="no-comments">Пока нет комментариев. Будьте первым!</div>';
+                return;
+            }
+            
+            // Сортируем комментарии по дате (новые сверху)
+            comments.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            comments.forEach(comment => {
+                const commentElement = createCommentElement(comment);
+                commentsList.appendChild(commentElement);
+            });
+        }
+
+        // Отображение всех пользователей
+        function renderUsers() {
+            const usersGrid = document.getElementById('users-grid');
+            usersGrid.innerHTML = '';
+            
+            if (usersData.length === 0) {
+                usersGrid.innerHTML = '<div class="no-results">Пока нет зарегистрированных пользователей</div>';
+                return;
+            }
+            
+            usersData.forEach(user => {
+                const userCard = document.createElement('div');
+                userCard.className = 'user-card';
+                
+                // Получаем аватар пользователя
+                const avatar = avatarsData[user.id] 
+                    ? `<img src="${avatarsData[user.id]}" alt="Аватар">`
+                    : user.username.charAt(0).toUpperCase();
+                
+                userCard.innerHTML = `
+                    <div class="user-card-avatar">${avatar}</div>
+                    <h3 class="user-card-name">${user.username}</h3>
+                    <p class="user-card-role">${user.role}</p>
+                    <p class="user-card-email">${user.email}</p>
+                `;
+                
+                usersGrid.appendChild(userCard);
+            });
+        }
+
+        // Отображение панели управления пользователями
+        function renderAdminPanel() {
+            const adminTable = document.getElementById('admin-users-table');
+            adminTable.innerHTML = '';
+            
+            if (usersData.length === 0) {
+                adminTable.innerHTML = '<tr><td colspan="5" style="text-align: center;">Нет пользователей</td></tr>';
+                return;
+            }
+            
+            usersData.forEach(user => {
+                const row = document.createElement('tr');
+                
+                // Получаем аватар пользователя
+                const avatar = avatarsData[user.id] 
+                    ? `<img src="${avatarsData[user.id]}" alt="Аватар">`
+                    : user.username.charAt(0).toUpperCase();
+                
+                row.innerHTML = `
+                    <td>
+                        <div class="user-table-avatar">${avatar}</div>
+                    </td>
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td>
+                        <select class="role-select" data-user-id="${user.id}">
+                            <option value="user" ${user.role === 'user' ? 'selected' : ''}>Пользователь</option>
+                            <option value="DreamyVoice" ${user.role === 'DreamyVoice' ? 'selected' : ''}>DreamyVoice</option>
+                            <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Администратор</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button class="save-role-btn" data-user-id="${user.id}">Сохранить</button>
+                    </td>
+                `;
+                
+                adminTable.appendChild(row);
+            });
+            
+            // Добавляем обработчики для кнопок сохранения ролей
+            adminTable.querySelectorAll('.save-role-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const userId = parseInt(e.target.getAttribute('data-user-id'));
+                    const roleSelect = document.querySelector(`.role-select[data-user-id="${userId}"]`);
+                    const newRole = roleSelect.value;
+                    
+                    await changeUserRole(userId, newRole);
+                });
+            });
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            // Загружаем данные об аниме
+            loadAnimeData();
+            
+            // Добавляем обработчик для закрытия модального окна
+            document.getElementById('close-modal').addEventListener('click', closeVideoModal);
+            
+            // Закрываем модальное окно при клике вне его содержимого
+            document.getElementById('video-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('video-modal')) {
+                    closeVideoModal();
+                }
+            });
+            
+            // Добавляем обработчики для навигации
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const category = e.target.getAttribute('data-category');
+                    showCategory(category);
+                    closeMenu(); // Закрываем меню после выбора
+                });
+            });
+            
+            // Обработчик для ссылки "Админ-панель"
+            document.getElementById('admin-link').addEventListener('click', (e) => {
+                e.preventDefault();
+                if (currentUser && currentUser.role === 'admin') {
+                    showCategory('admin');
+                } else {
+                    alert('Админ-панель доступна только администраторам.');
+                }
+                closeMenu(); // Закрываем меню после клика
+            });
+            
+            // Обработчик для ссылки "О нас"
+            document.getElementById('about-link').addEventListener('click', (e) => {
+                e.preventDefault();
+                alert('DreamyVoice - команда энтузиастов, создающая качественные переводы аниме на русский язык.');
+                closeMenu(); // Закрываем меню после клика
+            });
+            
+            // Обработчик для поиска
+            document.getElementById('search-input').addEventListener('input', (e) => {
+                searchAnime(e.target.value);
+            });
+            
+            // Обработчики для гамбургер-меню
+            document.getElementById('hamburger').addEventListener('click', toggleMenu);
+            document.getElementById('overlay').addEventListener('click', closeMenu);
+            
+            // Обработчик для остановки видео при уходе со страницы
+            window.addEventListener('beforeunload', stopVideo);
+            window.addEventListener('pagehide', stopVideo);
+            
+            // Остановка видео при переходе на другую вкладку
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    stopVideo();
+                }
+            });
+            
+            // ========== ОБРАБОТЧИКИ ДЛЯ АВТОРИЗАЦИИ И КОММЕНТАРИЕВ ==========
+            
+            // Обработчик для кнопки входа/регистрации
+            document.getElementById('auth-link').addEventListener('click', (e) => {
+                e.preventDefault();
+                openAuthModal();
+                closeMenu();
+            });
+            
+            // Обработчик для кнопки выхода
+            document.getElementById('logout-btn').addEventListener('click', (e) => {
+                e.preventDefault();
+                clearCurrentUser();
+                showNotification('Вы вышли из системы', 'info');
+                closeMenu();
+            });
+            
+            // Обработчик для открытия профиля
+            document.getElementById('user-avatar').addEventListener('click', (e) => {
+                e.preventDefault();
+                openProfileModal();
+                closeMenu();
+            });
+            
+            document.getElementById('user-name').addEventListener('click', (e) => {
+                e.preventDefault();
+                openProfileModal();
+                closeMenu();
+            });
+            
+            // Обработчик для закрытия модального окна авторизации
+            document.getElementById('close-auth-modal').addEventListener('click', closeAuthModal);
+            
+            // Обработчик для закрытия модального окна профиля
+            document.getElementById('close-profile-modal').addEventListener('click', closeProfileModal);
+            
+            // Обработчики для переключения вкладок авторизации
+            document.getElementById('login-tab').addEventListener('click', () => switchAuthTab('login'));
+            document.getElementById('register-tab').addEventListener('click', () => switchAuthTab('register'));
+            
+            // Обработчики для форм авторизации
+            document.getElementById('login-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const username = document.getElementById('login-username').value;
+                const password = document.getElementById('login-password').value;
+                
+                const result = await loginUser(username, password);
+                
+                if (!result.success) {
+                    const errorElement = document.getElementById('login-error');
+                    errorElement.textContent = result.message;
+                    errorElement.style.display = 'block';
+                }
+            });
+            
+            document.getElementById('register-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const username = document.getElementById('register-username').value;
+                const email = document.getElementById('register-email').value;
+                const password = document.getElementById('register-password').value;
+                const confirmPassword = document.getElementById('register-confirm-password').value;
+                
+                if (password !== confirmPassword) {
+                    const errorElement = document.getElementById('register-error');
+                    errorElement.textContent = 'Пароли не совпадают';
+                    errorElement.style.display = 'block';
+                    return;
+                }
+                
+                if (password.length < 6) {
+                    const errorElement = document.getElementById('register-error');
+                    errorElement.textContent = 'Пароль должен содержать минимум 6 символов';
+                    errorElement.style.display = 'block';
+                    return;
+                }
+                
+                const result = await registerUser(username, email, password);
+                
+                if (!result.success) {
+                    const errorElement = document.getElementById('register-error');
+                    errorElement.textContent = result.message;
+                    errorElement.style.display = 'block';
+                }
+            });
+            
+            // Обработчики для загрузки аватара
+            document.getElementById('avatar-input').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    // Проверяем тип файла
+                    if (!file.type.match('image.*')) {
+                        showNotification('Пожалуйста, выберите изображение', 'error');
+                        return;
+                    }
+                    
+                    // Проверяем размер файла (максимум 2MB)
+                    if (file.size > 2 * 1024 * 1024) {
+                        showNotification('Размер файла не должен превышать 2MB', 'error');
+                        return;
+                    }
+                    
+                    avatarFile = file;
+                    
+                    // Показываем предпросмотр
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('preview-image').src = e.target.result;
+                        document.getElementById('avatar-preview').style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            document.getElementById('save-avatar-btn').addEventListener('click', async (e) => {
+                e.preventDefault();
+                
+                if (!avatarFile) {
+                    showNotification('Пожалуйста, выберите файл', 'error');
+                    return;
+                }
+                
+                const result = await uploadAvatar(avatarFile);
+                
+                if (result.success) {
+                    closeProfileModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
